@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.devicefarm.model.*;
 
 import hudson.model.Result;
@@ -912,13 +911,7 @@ public class AWSDeviceFarmRecorder extends Recorder {
          * @return The AWS Device Farm API object.
          */
         public AWSDeviceFarm getAWSDeviceFarm() {
-            AWSDeviceFarm adf;
-            if (roleArn == null || roleArn.isEmpty()) {
-                adf = new AWSDeviceFarm(new BasicAWSCredentials(akid, skid));
-            } else {
-                adf = new AWSDeviceFarm(roleArn);
-            }
-            return adf;
+            return new AWSDeviceFarm(roleArn, akid, skid);
         }
 
         /**

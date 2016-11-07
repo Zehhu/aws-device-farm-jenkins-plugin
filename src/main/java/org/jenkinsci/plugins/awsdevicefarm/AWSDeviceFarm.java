@@ -14,6 +14,7 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jenkinsci.plugins.awsdevicefarm.test.*;
+import com.amazonaws.auth.BasicAWSCredentials;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -32,31 +33,23 @@ public class AWSDeviceFarm {
     //// Constructors
 
     /**
-     * AWSDeviceFarm constructor.
-     * @param roleArn Role ARN to use for authentication.
-     */
-    public AWSDeviceFarm(String roleArn) {
-        this(null, roleArn);
-    }
-
-    /**
-     * AWSDeviceFarm constructor.
-     * @param creds AWSCredentials to use for authentication.
-     */
-    public AWSDeviceFarm(AWSCredentials creds) { this(creds, null); }
-
-    /**
-     * Private AWSDeviceFarm constructor. Uses the roleArn to generate STS creds if the roleArn isn't null; otherwise
+     * Public AWSDeviceFarm constructor. Uses the roleArn to generate STS creds if the roleArn isn't null; otherwise
      * just uses the AWSCredentials creds.
      * @param creds AWSCredentials creds to use for authentication.
      * @param roleArn Role ARN to use for authentication.
      */
-    private AWSDeviceFarm(AWSCredentials creds, String roleArn) {
+    public AWSDeviceFarm(String roleArn, String akid, String skid) {
+        api = new AWSDeviceFarmClient();
+        api.setServiceNameIntern("devicefarm");
+
+        AWSCredentials creds = null;
         if (roleArn != null) {
             STSAssumeRoleSessionCredentialsProvider sts = new STSAssumeRoleSessionCredentialsProvider
                     .Builder(roleArn, RandomStringUtils.randomAlphanumeric(8))
                     .build();
             creds = sts.getCredentials();
+        } else {
+            creds = new BasicAWSCredentials(akid, skid);
         }
 
         ClientConfiguration clientConfiguration = new ClientConfiguration().withUserAgent("AWS Device Farm - Jenkins v1.0");
