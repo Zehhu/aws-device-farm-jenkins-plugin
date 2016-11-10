@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.awsdevicefarm;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.*;
@@ -39,21 +40,8 @@ public class AWSDeviceFarm {
      * @param roleArn Role ARN to use for authentication.
      */
     public AWSDeviceFarm(String roleArn, String akid, String skid) {
-        api = new AWSDeviceFarmClient();
-        api.setServiceNameIntern("devicefarm");
-
-        AWSCredentials creds = null;
-        if (roleArn != null) {
-            STSAssumeRoleSessionCredentialsProvider sts = new STSAssumeRoleSessionCredentialsProvider
-                    .Builder(roleArn, RandomStringUtils.randomAlphanumeric(8))
-                    .build();
-            creds = sts.getCredentials();
-        } else {
-            creds = new BasicAWSCredentials(akid, skid);
-        }
-
         ClientConfiguration clientConfiguration = new ClientConfiguration().withUserAgent("AWS Device Farm - Jenkins v1.0");
-        api = new AWSDeviceFarmClient(creds, clientConfiguration);
+        api = new AWSDeviceFarmClient(clientConfiguration);
         api.setServiceNameIntern("devicefarm");
     }
 
